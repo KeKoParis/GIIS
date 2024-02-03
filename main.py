@@ -5,6 +5,8 @@ import sys
 
 from loguru import logger
 
+from lines import DDA
+
 logger.add(sys.stderr, format="{time} {level} {message}", filter="my_module", level="INFO")
 logger.add("out.log")
 
@@ -55,7 +57,7 @@ line_frame.grid(row=0, column=0, padx=2, pady=2)
 line_label = Label(line_frame, text="Lines", font="Arial")
 line_label.grid()
 
-algorithms = ["DDA", "Bresenham", "Walrus Optimizer (WO)"]
+algorithms = ["DDA", "Bresenham", "Wu's line algorithm"]
 line_box = ttk.Combobox(line_frame, values=algorithms, state="readonly")
 line_box.current(0)
 line_box.grid()
@@ -92,7 +94,17 @@ def figure_click(event):
     if len(draw) == 0:
         draw.append(event)
     else:
+        if draw[0].x == event.x and draw[0].y == event.y:
+            return
+
         draw.append(event)
+        points = DDA.DDA(draw[0], draw[1])
+
+        print(points)
+        for i in points:
+            canvas.create_oval(i[0], i[1], i[0] + 1, i[1] + 1, fill="black")
+
+        draw.clear()
 
 
 def clear_canvas(event):
