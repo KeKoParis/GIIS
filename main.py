@@ -7,6 +7,7 @@ from loguru import logger
 
 from lines import DDA
 from lines import Bresenham
+from lines import Wu
 
 logger.add(sys.stderr, format="{time} {level} {message}", filter="my_module", level="INFO")
 logger.add("out.log")
@@ -114,9 +115,20 @@ def figure_click(event):
         elif line_box.get() == "Bresenham":
             points = Bresenham.Bresenham(draw[0], draw[1])
 
-        print(points)
         for i in points:
             canvas.create_oval(i[0], i[1], i[0] + 1, i[1] + 1, fill="black")
+
+        if line_box.get() == "Wu's line algorithm":
+            points, additional = Wu.Wu(draw[0], draw[1])
+            for i in range(len(points)):
+                color_1 = '#%02x%02x%02x' % (
+                    int(255 * additional[i][2]), int(255 * additional[i][2]), int(255 * additional[i][2]))
+                color_2 = '#%02x%02x%02x' % (int(255 * (1 - additional[i][2])), int(255 * (1 - additional[i][2])),
+                                             int(255 * (1 - additional[i][2])))
+                canvas.create_oval(points[i][0], points[i][1], points[i][0] + 1, points[i][1] + 1, fill=color_1)
+                canvas.create_oval(additional[i][0], additional[i][1], additional[i][0] + 1, additional[i][1] + 1,
+                                   fill=color_2)
+
 
         logger.debug("line is drown!")
 
@@ -127,6 +139,7 @@ def clear_canvas(event):
     """
     Clear canvas function
     """
+    draw.clear()
     logger.debug("now canvas is clear")
     canvas.delete("all")
 
