@@ -6,6 +6,7 @@ import sys
 from loguru import logger
 
 from lines import DDA
+from lines import Bresenham
 
 logger.add(sys.stderr, format="{time} {level} {message}", filter="my_module", level="INFO")
 logger.add("out.log")
@@ -15,7 +16,7 @@ window layout
 """
 window = Tk()
 window.title("Graphical Editor")
-window.geometry("800x620")
+window.geometry("800x660")
 
 """
 canvas layout
@@ -23,8 +24,17 @@ canvas layout
 canvas = Canvas(window, width=800, height=500, background="white")
 canvas.grid(row=0, column=0)
 
-clear_canvas_button = Button(window, text="Clear")
+clear_canvas_button = Button(window, text="Clear canvas")
 clear_canvas_button.grid(row=3, column=0)
+
+"""
+Debug
+"""
+debug_frame = Frame(window)
+debug_frame.grid(row=4, column=0)
+
+debug_button = Button(debug_frame, text="Debug")
+debug_button.grid(row=0, column=1)
 
 """
 action radiobutton frame
@@ -36,9 +46,9 @@ radiobutton_frame = Frame(window)
 radiobutton_frame.grid(row=1, column=0)
 
 line_radiobutton = Radiobutton(radiobutton_frame, variable=selected_option, text="Line", value="line")
-circle_radiobutton = Radiobutton(radiobutton_frame, variable=selected_option, text="Circle", value="circle")
+# circle_radiobutton = Radiobutton(radiobutton_frame, variable=selected_option, text="Circle", value="circle")
 
-circle_radiobutton.grid(row=0, column=1)
+# circle_radiobutton.grid(row=0, column=1)
 line_radiobutton.grid(row=0, column=0)
 
 """
@@ -98,11 +108,17 @@ def figure_click(event):
             return
 
         draw.append(event)
-        points = DDA.DDA(draw[0], draw[1])
+        points = list()
+        if line_box.get() == "DDA":
+            points = DDA.DDA(draw[0], draw[1])
+        elif line_box.get() == "Bresenham":
+            points = Bresenham.Bresenham(draw[0], draw[1])
 
         print(points)
         for i in points:
             canvas.create_oval(i[0], i[1], i[0] + 1, i[1] + 1, fill="black")
+
+        logger.debug("line is drown!")
 
         draw.clear()
 
