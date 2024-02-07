@@ -23,8 +23,15 @@ def Wu(event_1, event_2):
 
     e = 2 * dy - dx
 
-    for _ in range(dx + 1):
-        points.append((x, y))
+    additional = []
+
+    for i in range(dx + 1):
+        if change_flag:
+            points.append((x, y))
+            additional.append((x, y + s2))
+        else:
+            points.append((x, y))
+            additional.append((x + s1, y))
         while e >= 0:
             if change_flag:
                 x += s1
@@ -38,15 +45,11 @@ def Wu(event_1, event_2):
         e += 2 * dy
 
     k = (event_2.y - event_1.y) / (event_2.x - event_1.x)
-    b = event_2.y - k * event_2.x
-    additional = []
-    if abs(event_2.y - event_1.y) < abs(event_2.x - event_1.x):
-        for i in points:
-            curr_y = i[0] * k + b
-            additional.append((i[0], math.ceil(curr_y), 1 - abs(curr_y - i[1])))
-    else:
-        for i in points:
-            curr_x = (i[1] - b) / k
-            additional.append((math.ceil(curr_x), i[1], min((curr_x / i[0]), 1 - abs(curr_x - i[0]))))
+    b = event_1.y - event_1.x * k
+    for i in range(len(points)):
+        if change_flag:
+            additional[i] = (additional[i][0] + 10 * s1, additional[i][1], abs(points[i][0] * k + b - points[i][1]))
+        else:
+            additional[i] = (additional[i][0], additional[i][1] + 10 * s2, abs(points[i][0] * k + b - points[i][1]))
 
-    return points, additional
+    return points, additional, change_flag

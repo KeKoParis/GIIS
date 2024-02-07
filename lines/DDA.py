@@ -25,4 +25,5 @@ def DDA(event_1, event_2):
         curr_y = curr_y + raster_unit_y
         i += 1
 
+    print(points)
     return points

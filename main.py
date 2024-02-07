@@ -122,12 +122,30 @@ def figure_click(event):
             canvas.create_rectangle(i[0], i[1], i[0] + 1, i[1] + 1, fill="black")
 
         if line_box.get() == "Wu's line algorithm":
-            points, additional = Wu.Wu(draw[0], draw[1])
+            points, additional, change_flag = Wu.Wu(draw[0], draw[1])
+            s1 = 1 if points[-1][0] > points[0][0] else -1
+            s2 = 1 if points[-1][1] > points[0][1] else -1
+
+            k = (points[-1][1] - points[0][1]) / (points[-1][0] - points[0][0])
+            b = points[-1][1] - points[-1][0] * k
             for i in range(len(points)):
-                color_1 = '#%02x%02x%02x' % (
-                    int(255 * additional[i][2]), int(255 * additional[i][2]), int(255 * additional[i][2]))
-                color_2 = '#%02x%02x%02x' % (int(255 * (1 - additional[i][2])), int(255 * (1 - additional[i][2])),
-                                             int(255 * (1 - additional[i][2])))
+                if change_flag:
+                    additional[i] = (
+                        additional[i][0] - 10 * s1, additional[i][1], abs(points[i][0] * k + b - points[i][1]))
+                else:
+                    additional[i] = (
+                        additional[i][0], additional[i][1] - 10 * s2, abs(points[i][0] * k + b - points[i][1]))
+
+            for i in range(len(points)):
+                color_1 = "#%02x%02x%02x" % (
+                    abs(int(255 * additional[i][2])), abs(int(255 * additional[i][2])),
+                    abs(int(255 * additional[i][2])))
+
+                color_2 = "#%02x%02x%02x" % (
+                    abs(int(255 * (1 - additional[i][2]))), abs(int(255 * (1 - additional[i][2]))),
+                    abs(int(255 * (1 - additional[i][2]))))
+
+                print("color ", color_1, len(color_1))
                 canvas.create_rectangle(points[i][0], points[i][1], points[i][0] + 1, points[i][1] + 1, fill=color_1)
                 canvas.create_rectangle(additional[i][0], additional[i][1], additional[i][0] + 1, additional[i][1] + 1,
                                         fill=color_2)
@@ -164,8 +182,39 @@ def debug_line(event):
         points = Bresenham.Bresenham(draw[0], draw[1])
 
     if line_box.get() == "Wu's line algorithm":
-        points, additional = Wu.Wu(draw[0], draw[1])
+        points, additional, change_flag = Wu.Wu(draw[0], draw[1])
+        sign_x = 1
+        sign_y = 1
+        if additional[-1][0] - additional[0][0] < 0:
+            sign_x = -1
+        if additional[-1][1] - additional[0][1] < 0:
+            sign_y = -1
 
+        prev_x = additional[0][0]
+        prev_y = additional[0][1]
+
+        prev_add_x = additional[0][0]
+        prev_add_y = additional[0][1]
+
+        pixels = list(additional)
+        x = 0
+        y = 0
+        for i in range(len(additional)):
+            if pixels[i][0] == prev_x:
+                additional[i] = (prev_add_x, prev_add_y, additional[i][2])
+            else:
+                additional[i] = (pixels[i][0] + 10 * x * sign_x, prev_add_y, additional[i][2])
+                prev_add_x = pixels[i][0] + 10 * x * sign_x
+                prev_x = pixels[i][0]
+                x += 1
+
+            if pixels[i][1] == prev_y:
+                additional[i] = (prev_add_x, prev_add_y, additional[i][2])
+            else:
+                additional[i] = (prev_add_x, pixels[i][1] + 10 * y * sign_y, additional[i][2])
+                prev_add_y = pixels[i][1] + 10 * y * sign_y
+                prev_y = pixels[i][1]
+                y += 1
 
     sign_x = 1
     sign_y = 1
@@ -184,7 +233,6 @@ def debug_line(event):
     x = 0
     y = 0
     for i in range(len(points)):
-        print(i, pixels[i], (prev_add_x, prev_add_y))
         if pixels[i][0] == prev_x:
             points[i] = (prev_add_x, prev_add_y)
         else:
@@ -201,24 +249,24 @@ def debug_line(event):
             prev_y = pixels[i][1]
             y += 1
 
-
-
-
     def debug_draw(event):
         if line_box.get() == "DDA" or line_box.get() == "Bresenham":
             debug_canvas.create_rectangle(points[0][0], points[0][1], points[0][0] + 10, points[0][1] + 10,
                                           fill="black")
             points.pop(0)
         elif line_box.get() == "Wu's line algorithm":
-            color_2 = '#%02x%02x%02x' % (
-                int(255 * additional[0][2]), int(255 * additional[0][2]), int(255 * additional[0][2]))
-            color_1 = '#%02x%02x%02x' % (int(255 * (1 - additional[0][2])), int(255 * (1 - additional[0][2])),
-                                         int(255 * (1 - additional[0][2])))
-            debug_canvas.create_rectangle(points[0][0], points[0][1], points[0][0] + 10, points[0][1] + 10,
-                                          fill=color_1)
-            debug_canvas.create_rectangle(additional[0][0], additional[0][1], additional[0][0] + 10,
-                                          additional[0][1] + 10,
-                                          fill=color_2)
+            color_1 = "#%02x%02x%02x" % (
+                abs(int(255 * additional[0][2])), abs(int(255 * additional[0][2])),
+                abs(int(255 * additional[0][2])))
+
+            color_2 = "#%02x%02x%02x" % (
+                abs(int(255 * (1 - additional[0][2]))), abs(int(255 * (1 - additional[0][2]))),
+                abs(int(255 * (1 - additional[0][2]))))
+
+            print("color ", color_1, len(color_1))
+            debug_canvas.create_rectangle(points[0][0], points[0][1], points[0][0] + 10, points[0][1] + 10, fill=color_1)
+            debug_canvas.create_rectangle(additional[0][0], additional[0][1], additional[0][0] + 10, additional[0][1] + 10,
+                                    fill=color_2)
             points.pop(0)
             additional.pop(0)
 
