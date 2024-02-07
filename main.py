@@ -99,6 +99,9 @@ def figure_click(event):
     """
     Click to draw line.
     """
+    if len(draw) == 2:
+        draw.clear()
+
     logger.debug(f"radio button option: {selected_option.get()}; line algorithm: {line_box.get()}")
     logger.debug(event)
 
@@ -116,7 +119,7 @@ def figure_click(event):
             points = Bresenham.Bresenham(draw[0], draw[1])
 
         for i in points:
-            canvas.create_oval(i[0], i[1], i[0] + 1, i[1] + 1, fill="black")
+            canvas.create_rectangle(i[0], i[1], i[0] + 1, i[1] + 1, fill="black")
 
         if line_box.get() == "Wu's line algorithm":
             points, additional = Wu.Wu(draw[0], draw[1])
@@ -125,14 +128,11 @@ def figure_click(event):
                     int(255 * additional[i][2]), int(255 * additional[i][2]), int(255 * additional[i][2]))
                 color_2 = '#%02x%02x%02x' % (int(255 * (1 - additional[i][2])), int(255 * (1 - additional[i][2])),
                                              int(255 * (1 - additional[i][2])))
-                canvas.create_oval(points[i][0], points[i][1], points[i][0] + 1, points[i][1] + 1, fill=color_1)
-                canvas.create_oval(additional[i][0], additional[i][1], additional[i][0] + 1, additional[i][1] + 1,
-                                   fill=color_2)
-
+                canvas.create_rectangle(points[i][0], points[i][1], points[i][0] + 1, points[i][1] + 1, fill=color_1)
+                canvas.create_rectangle(additional[i][0], additional[i][1], additional[i][0] + 1, additional[i][1] + 1,
+                                        fill=color_2)
 
         logger.debug("line is drown!")
-
-        draw.clear()
 
 
 def clear_canvas(event):
@@ -144,10 +144,93 @@ def clear_canvas(event):
     canvas.delete("all")
 
 
+def debug_line(event):
+    if len(draw) != 2:
+        return
+
+    debug_window = Tk()
+    debug_window.title("Debug")
+    debug_window.geometry("600x600")
+
+    next_button = Button(debug_window, text="Next")
+    next_button.grid()
+
+    debug_canvas = Canvas(debug_window, width=500, height=500, background="white")
+    debug_canvas.grid()
+
+    if line_box.get() == "DDA":
+        points = DDA.DDA(draw[0], draw[1])
+    elif line_box.get() == "Bresenham":
+        points = Bresenham.Bresenham(draw[0], draw[1])
+
+    if line_box.get() == "Wu's line algorithm":
+        points, additional = Wu.Wu(draw[0], draw[1])
+
+
+    sign_x = 1
+    sign_y = 1
+    if points[-1][0] - points[0][0] < 0:
+        sign_x = -1
+    if points[-1][1] - points[0][1] < 0:
+        sign_y = -1
+
+    prev_x = points[0][0]
+    prev_y = points[0][1]
+
+    prev_add_x = points[0][0]
+    prev_add_y = points[0][1]
+
+    pixels = list(points)
+    x = 0
+    y = 0
+    for i in range(len(points)):
+        print(i, pixels[i], (prev_add_x, prev_add_y))
+        if pixels[i][0] == prev_x:
+            points[i] = (prev_add_x, prev_add_y)
+        else:
+            points[i] = (pixels[i][0] + 10 * x * sign_x, prev_add_y)
+            prev_add_x = pixels[i][0] + 10 * x * sign_x
+            prev_x = pixels[i][0]
+            x += 1
+
+        if pixels[i][1] == prev_y:
+            points[i] = (prev_add_x, prev_add_y)
+        else:
+            points[i] = (prev_add_x, pixels[i][1] + 10 * y * sign_y)
+            prev_add_y = pixels[i][1] + 10 * y * sign_y
+            prev_y = pixels[i][1]
+            y += 1
+
+
+
+
+    def debug_draw(event):
+        if line_box.get() == "DDA" or line_box.get() == "Bresenham":
+            debug_canvas.create_rectangle(points[0][0], points[0][1], points[0][0] + 10, points[0][1] + 10,
+                                          fill="black")
+            points.pop(0)
+        elif line_box.get() == "Wu's line algorithm":
+            color_2 = '#%02x%02x%02x' % (
+                int(255 * additional[0][2]), int(255 * additional[0][2]), int(255 * additional[0][2]))
+            color_1 = '#%02x%02x%02x' % (int(255 * (1 - additional[0][2])), int(255 * (1 - additional[0][2])),
+                                         int(255 * (1 - additional[0][2])))
+            debug_canvas.create_rectangle(points[0][0], points[0][1], points[0][0] + 10, points[0][1] + 10,
+                                          fill=color_1)
+            debug_canvas.create_rectangle(additional[0][0], additional[0][1], additional[0][0] + 10,
+                                          additional[0][1] + 10,
+                                          fill=color_2)
+            points.pop(0)
+            additional.pop(0)
+
+    next_button.bind("<Button-1>", debug_draw)
+
+
 """
 event bindings
 """
 canvas.bind("<Button-1>", figure_click)
 clear_canvas_button.bind("<Button-1>", clear_canvas)
+
+debug_button.bind("<Button-1>", debug_line)
 
 window.mainloop()
