@@ -21,7 +21,7 @@ window layout
 """
 window = Tk()
 window.title("Graphical Editor")
-window.geometry("800x660")
+window.geometry("1100x520")
 
 buttons_frame = Frame(window)
 buttons_frame.grid(row=1, column=0)
@@ -29,10 +29,10 @@ buttons_frame.grid(row=1, column=0)
 canvas layout
 """
 canvas = Canvas(window, width=800, height=500, background="white")
-canvas.grid(row=0, column=0)
+canvas.grid(row=1, column=1)
 
 clear_canvas_button = Button(buttons_frame, text="Clear canvas")
-clear_canvas_button.grid(row=3, column=0)
+clear_canvas_button.grid(row=0, column=0)
 
 """
 Debug
@@ -88,7 +88,7 @@ circles layout
 """
 
 circle_frame = Frame(figure_frame, highlightbackground="black", highlightthickness=1)
-circle_frame.grid(row=0, column=1, padx=2, pady=2)
+circle_frame.grid(row=1, column=0, padx=2, pady=2)
 
 circle_label = Label(circle_frame, text="Ellipse", font='Arial')
 circle_label.grid()
@@ -102,7 +102,7 @@ parabola layout
 """
 
 parabola_frame = Frame(figure_frame, highlightbackground="black", highlightthickness=1)
-parabola_frame.grid(row=0, column=2, padx=2, pady=2)
+parabola_frame.grid(row=1, column=0, padx=2, pady=2)
 
 parabola_label = Label(parabola_frame, text="Parabola", font='Arial')
 parabola_label.grid()
@@ -115,7 +115,7 @@ parabola_box.grid()
 hyperbola layout
 """
 hyperbola_frame = Frame(figure_frame, highlightbackground="black", highlightthickness=1)
-hyperbola_frame.grid(row=0, column=3, padx=2, pady=2)
+hyperbola_frame.grid(row=2, column=0, padx=2, pady=2)
 
 hyperbola_label = Label(hyperbola_frame, text="Hyperbola", font='Arial')
 hyperbola_label.grid()
