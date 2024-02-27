@@ -22,8 +22,9 @@ window layout
 window = Tk()
 window.title("Graphical Editor")
 window.geometry("1100x520")
+window.config(bg='OliveDrab1')
 
-buttons_frame = Frame(window)
+buttons_frame = Frame(window,bg='OliveDrab1')
 buttons_frame.grid(row=1, column=0)
 """
 canvas layout
@@ -37,7 +38,7 @@ clear_canvas_button.grid(row=0, column=0)
 """
 Debug
 """
-debug_frame = Frame(buttons_frame)
+debug_frame = Frame(buttons_frame, bg='OliveDrab1')
 debug_frame.grid(row=4, column=0)
 
 debug_button = Button(debug_frame, text="Debug")
@@ -49,7 +50,7 @@ action radiobutton frame
 
 selected_option = StringVar(value="line")
 
-radiobutton_frame = Frame(buttons_frame)
+radiobutton_frame = Frame(buttons_frame, bg='OliveDrab1')
 radiobutton_frame.grid(row=1, column=0)
 
 line_radiobutton = Radiobutton(radiobutton_frame, variable=selected_option, text="Line", value="line")
@@ -66,7 +67,7 @@ hyperbola_radiobutton.grid(row=0, column=3)
 figure frame
 """
 
-figure_frame = Frame(buttons_frame)
+figure_frame = Frame(buttons_frame,bg='OliveDrab1')
 figure_frame.grid(row=2, column=0)
 
 """
