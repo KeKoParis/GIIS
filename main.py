@@ -13,6 +13,10 @@ from rectangle.EBresenham import EBresenham
 from rectangle.Hyperbola import draw_hyperbola
 from rectangle.Parabola import plot_parabola
 
+from curve.hermite import hermite_curve
+from curve.bezier import bezier
+from curve.b_spline import b_spline
+
 logger.add(sys.stderr, format="{time} {level} {message}", filter="my_module", level="INFO")
 logger.add("out.log")
 
@@ -21,7 +25,7 @@ window layout
 """
 window = Tk()
 window.title("Graphical Editor")
-window.geometry("800x660")
+window.geometry("800x860")
 
 buttons_frame = Frame(window)
 buttons_frame.grid(row=1, column=0)
@@ -34,6 +38,28 @@ canvas.grid(row=0, column=0)
 clear_canvas_button = Button(buttons_frame, text="Clear canvas")
 clear_canvas_button.grid(row=3, column=0)
 
+vector_frame = Frame(window, pady=5)
+vector_frame.grid(row=3, column=0)
+
+x_1_label = Label(vector_frame, text="x_1")
+x_1_label.grid(row=0, column=0)
+x_1_text = Text(vector_frame, height=1, width=4)
+x_1_text.grid(row=0, column=1)
+
+y_1_label = Label(vector_frame, text="y_1")
+y_1_label.grid(row=0, column=2)
+y_1_text = Text(vector_frame, height=1, width=4)
+y_1_text.grid(row=0, column=3)
+
+x_2_label = Label(vector_frame, text="x_2")
+x_2_label.grid(row=1, column=0)
+x_2_text = Text(vector_frame, height=1, width=4)
+x_2_text.grid(row=1, column=1)
+
+y_2_label = Label(vector_frame, text="y_2")
+y_2_label.grid(row=1, column=2)
+y_2_text = Text(vector_frame, height=1, width=4)
+y_2_text.grid(row=1, column=3)
 """
 Debug
 """
@@ -56,11 +82,13 @@ line_radiobutton = Radiobutton(radiobutton_frame, variable=selected_option, text
 circle_radiobutton = Radiobutton(radiobutton_frame, variable=selected_option, text="Circle", value="circle")
 parabola_radiobutton = Radiobutton(radiobutton_frame, variable=selected_option, text="Parabola", value="parabola")
 hyperbola_radiobutton = Radiobutton(radiobutton_frame, variable=selected_option, text="Hyperbola", value="hyperbola")
+curve_radiobutton = Radiobutton(radiobutton_frame, variable=selected_option, text="Curve", value="Curve")
 
 circle_radiobutton.grid(row=0, column=1)
 line_radiobutton.grid(row=0, column=0)
 parabola_radiobutton.grid(row=0, column=2)
 hyperbola_radiobutton.grid(row=0, column=3)
+curve_radiobutton.grid(row=0, column=4)
 
 """
 figure frame
@@ -125,6 +153,20 @@ hyperbola_box.current(0)
 hyperbola_box.grid()
 
 """
+curve layout
+"""
+
+curve_frame = Frame(figure_frame, highlightbackground="black", highlightthickness=1)
+curve_frame.grid(row=0, column=4, padx=2, pady=2)
+
+curve_label = Label(curve_frame, text="Curve", font="Arial")
+curve_label.grid()
+
+curve_box = ttk.Combobox(curve_frame, values=['Hermite', 'Bezier', 'B-spline'], state="readonly")
+curve_box.current(0)
+curve_box.grid()
+
+"""
 events
 """
 
@@ -150,6 +192,25 @@ def figure_click(event):
         parabola_click(event)
     elif selected_option.get() == 'hyperbola':
         hyperbola_click(event)
+    elif selected_option.get() in 'Curve':
+        curve_click(event)
+
+
+def curve_click(event):
+    pixels = []
+    if curve_box.get() == 'Hermite':
+        pixels = hermite_curve(draw[0], draw[1],
+                               (int(x_1_text.get("1.0", "end-1c")), int(y_1_text.get("1.0", "end-1c"))),
+                               (int(x_2_text.get("1.0", "end-1c")), int(y_2_text.get("1.0", "end-1c"))))
+    elif curve_box.get() == 'Bezier':
+        pixels = bezier(draw[0], draw[1], (int(x_1_text.get("1.0", "end-1c")), int(y_1_text.get("1.0", "end-1c"))),
+                        (int(x_2_text.get("1.0", "end-1c")), int(y_2_text.get("1.0", "end-1c"))))
+    elif curve_box.get() =='B-spline':
+        pixels = b_spline(draw[0], draw[1], (int(x_1_text.get("1.0", "end-1c")), int(y_1_text.get("1.0", "end-1c"))),
+                        (int(x_2_text.get("1.0", "end-1c")), int(y_2_text.get("1.0", "end-1c"))))
+
+    for i in pixels:
+        canvas.create_rectangle(i[0], i[1], i[0] + 1, i[1] + 1, fill="black")
 
 
 def hyperbola_click(event):
