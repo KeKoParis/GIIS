@@ -302,8 +302,33 @@ def choose_debug(event):
     elif selected_option.get() == 'parabola':
         debug_parabola(event)
     elif selected_option.get() == 'hyperbola':
-        pass
+        debug_hyperbola(event)
 
+
+def debug_hyperbola(event):
+    if len(draw) != 2:
+        return
+    debug_window = Tk()
+    debug_window.title("Debug")
+    debug_window.geometry("1000x1000")
+
+    next_button = Button(debug_window, text="Next")
+    next_button.grid()
+
+    debug_canvas = Canvas(debug_window, width=1000, height=1000, background="white")
+    debug_canvas.grid()
+
+    pixels = []
+    pixels = draw_hyperbola(draw[0], draw[1])
+
+    def draw_point(event):
+        debug_canvas.create_rectangle(pixels[0][0], pixels[0][1], pixels[0][0], pixels[0][1],
+                                      fill='black')
+        logger.debug(f"{pixels[0][0]}, {pixels[0][1]}")
+        pixels.pop(0)
+        print(pixels)
+
+    next_button.bind("<Button-1>", draw_point)
 
 def debug_parabola(event):
     if len(draw) != 2:
